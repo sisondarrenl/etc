@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Midnight_Sun</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="styles.css"> <!-- Add this line -->
+</head>
+
+<body>
+  <div class="container">
+    <h3>
+		<a href="draft.html">Draft</a> |
+		<a href="KQL_query_tool_advanced.html" class="active">KQL Query</a> |
+		<a href="merger.html">Merge</a> |
+		<a href="sanitizer.html">Sanitize</a> |
+		<a href="extractor.html">Extract</a>
+	</h3>
+    <form class="form-horizontal" action="/action_page.php">
+      <hr>
+      <!-- My comment -->
+      <div class="form-group">
+	  <h4>Sign In Events</h4>
+        <label class="control-label col-sm-2" for="email">Email:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="email" value="">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">IP Address 1:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="IP_1" value="">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">IP Address 2:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="IP_2" value="">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">IP Address 3:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="IP_3" value="">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email"># of days:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="numOfDays" value="">
+        </div>
+      </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">AuthenticationRequirement:</label>
+      <div class="col-sm-10">
+		<select class="form-control" id="authReq">
+			<option>-</option>
+			<option>multiFactor</option>
+			<option>singleFactor</option>
+		</select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">Type:</label>
+      <div class="col-sm-10">
+		<select class="form-control" id="signinType">
+			<option>-</option>
+			<option>AADNonInteractiveUserSignInLogs</option>
+			<option>SigninLogs</option>
+		</select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">ConditionalAccessStatus:</label>
+      <div class="col-sm-10">
+		<select class="form-control" id="conditionalAccessStatus">
+			<option>-</option>
+			<option>success</option>
+			<option>failure</option>
+		</select>
+      </div>
+    </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">AppDisplayName:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="appDisplayName" value="">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="button" class="block" onclick="signinFunction()">Sign In Events Query</button>
+        </div>
+      </div>
+	  <hr>
+      <!-- My comment -->
+      <div class="form-group">
+	  <h4>Audit Events</h4>
+	    <div class="col-sm-offset-2 col-sm-10">
+          <button type="button" class="block" onclick="auditFunction()">Audit Events Query</button>
+        </div>
+      </div>
+	  <hr>
+      <!-- My comment -->
+	  <div class="form-group">
+        <label class="control-label col-sm-2" for="email">KQL_Query_1:</label>
+        <div class="col-sm-10">
+          <textarea id="kql_query_1" value="kql_query_1" class="form-control" style="height:425px;"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">KQL_Query_2:</label>
+        <div class="col-sm-10">
+          <textarea id="kql_query_2" value="kql_query_2" class="form-control" style="height:120px;"></textarea>
+        </div>
+      </div>
+	  <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="button" class="block2" onclick="window.location.href='KQL_query_tool.html'">Basic Filter</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <hr>
+      </div>
+    </form>
+  </div>
+  <footer>
+    <p></p>
+  </footer>
+  <script>
+    // Function for
+function signinFunction() {
+  const signin_email = document.getElementById("email").value;
+  const IP_1 = document.getElementById("IP_1").value;
+  const IP_2 = document.getElementById("IP_2").value;
+  const IP_3 = document.getElementById("IP_3").value;
+  const numOfDays = document.getElementById('numOfDays').value;
+  const authReq = document.getElementById("authReq").value;
+  const signinType = document.getElementById("signinType").value;
+  const conditionalAccessStatus = document.getElementById("conditionalAccessStatus").value;
+  const appDisplayName = document.getElementById("appDisplayName").value;
+  
+  // Check if at least one IP is not empty
+  const ipCondition = IP_1 || IP_2 || IP_3;
+  const ipFilter = ipCondition
+    ? `| where IPAddress in~("${IP_1 || ""}", "${IP_2 || ""}", "${IP_3 || ""}")`
+    : "//";
+	
+  // Check if the # of days field is not empty
+  const numOfDaysCondition = numOfDays.trim() !== "";
+  const numOfDaysFilter = numOfDaysCondition
+    ? `| where TimeGenerated > ago(${numOfDays}d)`
+    : "//";
+
+  // Check if the authReq field is not empty
+  const authReqCondition = authReq !== "-" && authReq.trim() !== "";
+  const authReqFilter = authReqCondition
+  ? `| where AuthenticationRequirement contains "${authReq}"`
+  : "//";
+
+  // Check if the signinType field is not empty
+  const signinTypeCondition = signinType !== "-" && signinType.trim() !== "";
+  const signinTypeFilter = signinTypeCondition
+  ? `| where Type == "${signinType}"`
+  : "//";
+  
+  // Check if the conditionalAccessStatus field is not empty
+  const conditionalAccessStatusCondition = conditionalAccessStatus !== "-" && conditionalAccessStatus.trim() !== "";
+  const conditionalAccessStatusFilter = conditionalAccessStatusCondition
+  ? `| where ConditionalAccessStatus == "${conditionalAccessStatus}"`
+  : "//";
+  
+  // Check if the appDisplayName field is not empty
+  const appDisplayNameCondition = appDisplayName.trim() !== "";
+  const appDisplayNameFilter = appDisplayNameCondition
+  ? `| where AppDisplayName contains "${appDisplayName}"`
+  : "//";
+
+  const kql_query_1 = `let user = dynamic(['${signin_email}']);
+let aadSignin = SigninLogs;
+let aadNonInt = AADNonInteractiveUserSignInLogs;
+let allSignins = union isfuzzy=true aadSignin, aadNonInt;
+allSignins 
+| where UserPrincipalName in~ (user)
+${ipFilter}
+${numOfDaysFilter}
+${authReqFilter}
+${signinTypeFilter}
+${conditionalAccessStatusFilter}
+${appDisplayNameFilter}
+| summarize by 
+    TimeGenerated, 
+    UserPrincipalName, 
+    Type, 
+    IPAddress, 
+    AuthenticationRequirement, 
+    AuthenticationDetails, 
+    Status = coalesce(tostring(Status_dynamic), tostring(Status_string)), 
+    MfaDetail = coalesce(tostring(MfaDetail_dynamic), tostring(MfaDetail_string)), 
+    ConditionalAccessStatus, 
+    AppDisplayName, 
+    DeviceDetail = coalesce(tostring(DeviceDetail_dynamic), tostring(DeviceDetail_string)), 
+    LocationDetails = coalesce(tostring(LocationDetails_dynamic), tostring(LocationDetails_string)), 
+    UserAgent`;
+
+  const kql_query_2 = ""
+
+  // Populate the textareas
+  document.getElementById("kql_query_1").value = kql_query_1;
+  document.getElementById("kql_query_2").value = kql_query_2;
+}
+
+function auditFunction() {
+  const audit_email = document.getElementById("email").value;
+
+  const kql_query_1 = `let user = dynamic(['${audit_email}']);
+let identity = IdentityInfo
+| where AccountUPN in~ (user)
+| where TimeGenerated > ago(30d)
+| summarize arg_max(TimeGenerated, *) by AccountUPN
+| project 
+   AccountDisplayName, AccountUPN, AccountSID, EmployeeId, Department, JobTitle, Manager, Phone, IsAccountEnabled, UserType,StreetAddress, City, Country, CompanyName, RiskLevel, tostring(GroupMembership);
+let audits = AuditLogs
+| where TimeGenerated > ago(30d)
+| where Category == "UserManagement"
+| mv-expand TargetResource = TargetResources
+| where tostring(TargetResource.userPrincipalName) in~ (user)
+| extend AccountUPN = tostring(TargetResource.userPrincipalName)
+| summarize Auditlogs = make_list(pack("TimeGenerated", TimeGenerated, "OperationName", OperationName, "Category", Category, "Identity", Identity, "ResultReason", ResultReason, "Result", Result, "InitiatedBy", tostring(InitiatedBy), "AdditionalDetails", tostring(AdditionalDetails), "TargetResource", tostring(TargetResource))) by AccountUPN;
+identity
+| join kind=leftouter (audits) on $left.AccountUPN == $right.AccountUPN
+| summarize by AccountDisplayName, AccountUPN, AccountSID, EmployeeId, Department, JobTitle, Manager, Phone, IsAccountEnabled, UserType, StreetAddress, City, Country, CompanyName, RiskLevel, GroupMembership, tostring(Auditlogs)`;
+
+  const kql_query_2 = ""
+  
+  // Populate the textareas
+  document.getElementById("kql_query_1").value = kql_query_1;
+  document.getElementById("kql_query_2").value = kql_query_2;
+}
+
+        // Function to load saved values for the textboxes
+        window.onload = function() {
+            const savedValue_email = localStorage.getItem('myKQLtool_email');
+            const savedValue_IP_1 = localStorage.getItem('myKQLtool_IP_1');
+			const savedValue_IP_2 = localStorage.getItem('myKQLtool_IP_2');
+			const savedValue_IP_3 = localStorage.getItem('myKQLtool_IP_3');
+
+            if (savedValue_email) {
+                document.getElementById('email').value = savedValue_email;
+            }
+            if (savedValue_IP_1) {
+                document.getElementById('IP_1').value = savedValue_IP_1;
+            }
+			if (savedValue_IP_2) {
+                document.getElementById('IP_2').value = savedValue_IP_2;
+            }
+			if (savedValue_IP_3) {
+                document.getElementById('IP_3').value = savedValue_IP_3;
+            }
+        };
+
+        // Save the value of textboxes whenever it changes
+        document.getElementById('email').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('myKQLtool_email', value);
+        });
+        document.getElementById('IP_1').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('myKQLtool_IP_1', value);
+        });
+        document.getElementById('IP_2').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('myKQLtool_IP_2', value);
+        });
+        document.getElementById('IP_3').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('myKQLtool_IP_3', value);
+        });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Midnight_Sun</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="styles.css"> <!-- Add this line -->
+</head>
+
+<body>
+  <div class="container">
+    <h3>
+		<a href="draft.html">Draft</a> |
+		<a href="KQL_query_tool.html">KQL Query</a> |
+		<a href="merger.html">Merge</a> |
+		<a href="sanitizer.html" class="active">Sanitize</a> |
+		<a href="extractor.html">Extract</a>
+	</h3>
+    <form class="form-horizontal" action="/action_page.php">
+      <hr>
+      <!-- My comment -->
+	  <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Input:</label>
+        <div class="col-sm-10">
+          <textarea id="inputText" value="inputText" class="form-control" style="height:350px;"></textarea>
+        </div>
+      </div>
+      <!-- My comment -->
+	  <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Keywords to Remove (comma-separated): <a href="">extractKeywords</a></label>
+        <div class="col-sm-10">
+          <textarea id="keywords" value="keywords" placeholder="e.g., error, warning, debug" class="form-control" style="height:70px;"></textarea>
+        </div>
+      </div>
+      <!-- My comment -->
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="button" class="block" onclick="removeLines()">Generate</button>
+        </div>
+      </div>
+	  <hr>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Output:</label>
+        <div class="col-sm-10">
+          <textarea id="outputText" value="outputText" class="form-control" style="height:350px;"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <hr>
+      </div>
+    </form>
+  </div>
+  <footer>
+    <p></p>
+  </footer>
+  
+<script>
+  function removeLines() {
+    // Get the input text and keywords
+    const inputText = document.getElementById('inputText').value;
+    const keywords = document.getElementById('keywords').value.split(',').map(k => k.trim().toLowerCase());
+
+    // Validate the input text
+    if (!inputText.trim()) {
+      alert('Please provide some input text.');
+      return;
+    }
+
+    // Validate the keywords
+    if (keywords.length === 0 || (keywords.length === 1 && keywords[0] === '')) {
+      alert('Please provide at least one keyword.');
+      return;
+    }
+
+    // Split the input text into lines
+    const lines = inputText.split('\n');
+
+    // Filter out lines containing any of the keywords
+    const filteredLines = lines.filter(line => {
+      // Convert each line to lowercase and check if it includes any keyword
+      return !keywords.some(keyword => keyword && line.toLowerCase().includes(keyword));
+    });
+
+    // Join the filtered lines and display them in the output textarea
+    document.getElementById('outputText').value = filteredLines.join('\n');
+  }
+  
+	function extractKeywordsFromPopup() {
+		const inputData = prompt("Paste your data here:");
+
+		if (inputData) {
+			// Extract only the first word before ":" per line
+			const regex = /^(\S+):/gm;
+			let matches = [...inputData.matchAll(regex)].map(match => match[1] + ":");
+
+			if (matches.length === 0) {
+				alert("No valid keywords found.");
+				return;
+			}
+
+			// Get existing keywords, add new ones, and update the textarea
+			const currentKeywords = document.getElementById('keywords').value
+				.split(',')
+				.map(k => k.trim())
+				.filter(k => k.length > 0);
+
+			const combinedKeywords = [...new Set([...currentKeywords, ...matches])];
+
+			document.getElementById('keywords').value = combinedKeywords.join(', ');
+		}
+	}
+
+        // Function to load saved values for the textboxes
+        window.onload = function() {
+            const savedValue_inputText = localStorage.getItem('sanitizer_inputText');
+			const savedValue_keywords = localStorage.getItem('sanitizer_keywords');
+
+            if (savedValue_inputText) {
+                document.getElementById('inputText').value = savedValue_inputText;
+            }
+            if (savedValue_keywords) {
+                document.getElementById('keywords').value = savedValue_keywords;
+            }			
+        };
+
+        // Save the value of Textbox 1 whenever it changes
+        document.getElementById('inputText').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('sanitizer_inputText', value);
+        });
+		document.getElementById('keywords').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('sanitizer_keywords', value);
+        });
+		
+    // Attach event listener to "extractKeywords" link
+    document.querySelector("a[href='']").addEventListener("click", function(event) {
+        event.preventDefault(); // Prevent default navigation
+        extractKeywordsFromPopup();
+    });
+
+</script>
+</body>
+</html>

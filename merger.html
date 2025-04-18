@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Midnight_Sun</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="styles.css"> <!-- Add this line -->
+</head>
+
+<body>
+  <div class="container">
+    <h3>
+		<a href="draft.html">Draft</a> |
+		<a href="KQL_query_tool.html">KQL Query</a> |
+		<a href="merger.html" class="active">Merge</a> |
+		<a href="sanitizer.html">Sanitize</a> |
+		<a href="extractor.html">Extract</a>
+	</h3>
+    <form class="form-horizontal" action="/action_page.php">
+      <hr>
+      <!-- My comment -->
+	  <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Input:</label>
+        <div class="col-sm-10">
+          <textarea id="inputText" value="inputText" class="form-control" style="height:350px;"></textarea>
+        </div>
+      </div>
+      <!-- My comment -->
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="button" class="block" onclick="combineLines()">Generate</button>
+        </div>
+      </div>
+	  <hr>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Output:</label>
+        <div class="col-sm-10">
+          <textarea id="outputText" value="outputText" class="form-control" style="height:350px;"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <hr>
+      </div>
+    </form>
+  </div>
+  <footer>
+    <p></p>
+  </footer>
+  
+  <script>
+    function combineLines() {
+      // Get the input text
+      const inputText = document.getElementById("inputText").value;
+
+      // Split the input into lines and trim whitespace
+      const lines = inputText.split("\n").map(line => line.trim());
+
+      // Combine every two lines into "key: value" pairs
+      const combinedLines = [];
+      for (let i = 0; i < lines.length; i += 2) {
+        if (i + 1 < lines.length) {
+          combinedLines.push(`${lines[i]}: ${lines[i + 1]}`);
+        }
+      }
+
+      // Display the combined lines in the output textarea
+      document.getElementById("outputText").value = combinedLines.join("\n");
+    }
+	
+        // Function to load saved values for the textboxes
+        window.onload = function() {
+            const savedValue1 = localStorage.getItem('myInputText');
+
+            if (savedValue1) {
+                document.getElementById('inputText').value = savedValue1;
+            }
+        };
+
+        // Save the value of Textbox 1 whenever it changes
+        document.getElementById('inputText').addEventListener('input', function() {
+            const value = this.value;
+            localStorage.setItem('myInputText', value);
+        });
+  </script>
+</body>
+</html>
