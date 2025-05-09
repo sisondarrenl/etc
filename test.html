@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Midnight Sun</title>
+    <meta name="description" content="A classic company or blog layout with a sidebar. Built with Pico CSS.">
+    <link rel="shortcut icon" href="https://picocss.com/favicon.ico">
+    <link rel="canonical" href="https://picocss.com/examples/company/">
+
+    <!-- Pico.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+
+    <!-- Custom styles for this example -->
+    <link rel="stylesheet" href="custom.css">
+  </head>
+
+  <body>
+    <!-- Hero -->
+    <div class="hero" data-theme="dark">
+      <nav class="container-fluid">
+        <ul>
+          <li>
+            <a href="./" class="contrast" onclick="event.preventDefault()"><strong>Midnight Sun</strong></a>
+          </li>
+        </ul>
+        <ul>
+		  <li><a href="#" class="outline">About3</a></li>
+		  <li>
+            <details role="list" dir="rtl">
+              <summary aria-haspopup="listbox" role="link" class="contrast">Theme</summary>
+              <ul role="listbox">
+                <li><a href="#" data-theme-switcher="auto">Auto</a></li>
+                <li><a href="#" data-theme-switcher="light">Light</a></li>
+                <li><a href="#" data-theme-switcher="dark">Dark</a></li>
+              </ul>
+            </details>
+          </li>
+        </ul>
+      </nav>
+      
+    </div>
+    <!-- ./ Hero -->
+
+    <!-- Main -->
+    
+    <!-- ./ Main -->
+
+    <!-- Subscribe -->
+    <section aria-label="Subscribe example">
+      <div class="container">
+        <article>
+          <hgroup>
+            <h2>Subscribe</h2>
+            <h3>Litora torquent per conubia nostra</h3>
+          </hgroup>
+          <form>
+			<textarea style="height:350px; name="bio" placeholder="Write a professional short bio..." aria-label="Professional short bio"></textarea>
+			<button type="submit" onclick="event.preventDefault()">Generate</button>
+			<textarea style="height:350px; name="bio" placeholder="Write a professional short bio..." aria-label="Professional short bio"></textarea>
+          </form>
+        </article>
+      </div>
+    </section>
+    <!-- ./ Subscribe -->
+
+    <!-- Footer -->
+    <footer class="container">
+      <small>Built with <a href="https://picocss.com">Pico</a>
+    </footer>
+    <!-- ./ Footer -->
+
+    <!-- Minimal theme switcher -->
+    <script src="js/minimal-theme-switcher.js"></script>
+  
+
+</body></html>

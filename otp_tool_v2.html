@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OTP Tool Generator</title>
+    <meta name="description" content="A classic company or blog layout with a sidebar. Built with Pico CSS." />
+    <link rel="shortcut icon" href="https://picocss.com/favicon.ico" />
+    <link rel="canonical" href="https://picocss.com/examples/company/" />
+
+    <!-- Pico.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+    <link rel="stylesheet" href="custom.css" />
+  </head>
+
+  <body>
+    <!-- Hero -->
+    <div class="hero" data-theme="dark">
+      <nav class="container-fluid">
+        <ul>
+          <li>
+            <a href="./" class="contrast" onclick="event.preventDefault()"><strong>Midnight Sun</strong></a>
+          </li>
+        </ul>
+        <ul>
+          <li><a href="#" class="outline">OTP Tool Generator</a></li>
+          <li>
+            <details role="list" dir="rtl">
+              <summary aria-haspopup="listbox" role="link" class="contrast">Theme</summary>
+              <ul role="listbox">
+                <li><a href="#" data-theme-switcher="auto">Auto</a></li>
+                <li><a href="#" data-theme-switcher="light">Light</a></li>
+                <li><a href="#" data-theme-switcher="dark">Dark</a></li>
+              </ul>
+            </details>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Section -->
+    <main>
+      <section aria-label="OTP Tool Generator">
+        <div class="container">
+          <article>
+            <hgroup>
+              <h2>OTP Tool Generator</h2>
+              <h3>Generate a script for OTP Tool</h3>
+            </hgroup>
+
+            <label for="inputText">Input:</label>
+            <textarea id="inputText" rows="8" placeholder="Enter data here (tech=account=key)" style="font-size: 80%;"></textarea>
+
+            <div class="grid">
+              <button id="processInputv2" onclick="processInputv2()">Generate v2</button>
+			  <button id="processInputv1" onclick="processInputv1()">Generate v1</button>
+            </div>
+
+            <label for="output">Output:</label>
+            <textarea id="output" rows="8" placeholder="Output will be displayed here..." style="font-size: 80%;"></textarea>
+
+            <div id="warning" role="alert" style="white-space: pre-wrap; margin-top: .1rem; font-size: 80%; color: red;"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container">
+      <small>
+        Built with <a href="https://picocss.com" target="_blank">Pico</a>
+      </small>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/minimal-theme-switcher.js"></script>
+	<script>
+    function processInputv2() {
+      const input = document.getElementById("inputText").value.trim();
+      const outputArea = document.getElementById("output");
+      
+      // Split the input into individual lines and process each line
+      const lines = input.split('\n');
+      const formattedData = [];
+      let invalidLines = 0;
+
+      // Process each line and split it by '='
+      lines.forEach((line) => {
+        const parts = line.split('=');
+        if (parts.length === 3) {
+          const [tech, account, key] = parts;  // Get tech, account, and key
+          formattedData.push({ tech, account, key });
+        } else {
+          invalidLines++;  // Count invalid lines
+        }
+      });
+
+      // Show a popup with the number of input lines and processed lines
+      alert(`Total items inputted: ${lines.length}\nTotal items processed: ${formattedData.length}\nTotal invalid items: ${invalidLines}`);
+
+      // If there are invalid lines, show an error message
+      if (invalidLines > 0) {
+        alert("Warning: Some item were not processed due to incorrect formatting. Please check the input. Proper syntax is tech=account=key");
+      }
+
+      // Sort by 'account' alphabetically
+      formattedData.sort((a, b) => a.account.localeCompare(b.account));
+
+      // Prepare the output as a single string
+      let output = `#!/bin/bash
+
+# Function to display OTPs for the accounts
+generate_otps() {
+echo "TWRAM Advanced OTP Tool V2"
+echo ""`;
+
+      // Add the formatted output
+	  // No color: printf "%-6s | %s\\n" "$(oathtool --base32 --totp ${item.key})" "${item.account} [${item.tech}]"`;
+      formattedData.forEach((item, index) => {
+        output += `
+printf "%-6s | %s \\033[1;34m[${item.tech}]\\033[0m\\n" "$(oathtool --base32 --totp ${item.key})" "${item.account}"`;
+      });
+
+      // Add the second section of the bash script
+      output += `
+}
+
+# Main script loop
+while true; do
+    # Check if oathtool is installed
+    echo "======================================================================="
+    if ! command -v oathtool &>/dev/null; then
+        echo "Error: 'oathtool' is not installed. Please install it first. You may try this command: sudo apt install oathtool gnupg2"
+        echo "Then you may verify the installation via: oathtool --version"
+        exit 1
+    fi
+
+    # Display oathtool version
+    echo "Using $(oathtool --version)"
+    echo "======================================================================="
+
+    # Display OTPs for accounts
+    generate_otps
+
+    echo "-----------------------------------------------------------------------"
+
+    # Display menu options
+    echo "Please select an action:"
+    echo "1. Refresh OTPs (auto-refresh 30s)"
+    echo "2. Enter custom key"
+
+    # Read user input for option
+    read -t 30 -p "Enter the option number (CTRL+C to quit): " option
+	
+    # Handle empty input
+    if [ -z "$option" ]; then
+        echo "No input provided..."
+        clear
+        continue
+    fi
+
+    # Handle options
+    case $option in
+    1) clear;;
+    2) read -p "Enter custom secret key: " custom_key
+       otp=$(oathtool --base32 --totp "$custom_key")
+       printf "Custom Key OTP: %s\\n" "$otp"
+       exit 0;;
+    *) echo "Invalid option selected. Please choose a valid number. Exiting..."
+       exit 1;;
+    esac
+
+done`;
+
+      // Display the formatted output in the output area
+      outputArea.textContent = output;  // Using textContent to preserve formatting
+    }
+
+    function processInputv1() {
+      const input = document.getElementById("inputText").value.trim();
+      const outputArea = document.getElementById("output");
+      
+      // Split the input into individual lines and process each line
+      const lines = input.split('\n');
+      const formattedData = [];
+      let invalidLines = 0;
+
+      // Process each line and split it by '='
+      lines.forEach((line) => {
+        const parts = line.split('=');
+        if (parts.length === 3) {
+          const [tech, account, key] = parts;  // Get tech, account, and key
+          formattedData.push({ tech, account, key });
+        } else {
+          invalidLines++;  // Count invalid lines
+        }
+      });
+
+      // Show a popup with the number of input lines and processed lines
+      alert(`Total items inputted: ${lines.length}\nTotal items processed: ${formattedData.length}\nTotal invalid items: ${invalidLines}`);
+
+      // If there are invalid lines, show an error message
+      if (invalidLines > 0) {
+        alert("Warning: Some item were not processed due to incorrect formatting. Please check the input. Proper syntax is tech=account=key");
+      }
+
+      // Sort by 'account' alphabetically
+      formattedData.sort((a, b) => a.account.localeCompare(b.account));
+
+      // Prepare the output as a single string
+      let output = `#!/bin/bash
+
+# Check if oathtool is installed
+echo "======================================================================="
+if ! command -v oathtool &>/dev/null; then
+    echo "Error: 'oathtool' is not installed. Please install it first. You may try this command: sudo apt install oathtool gnupg2"
+    echo "Then you may verify the installation via: oathtool --version"
+    exit 1
+fi
+
+# Display oathtool version
+echo "Using \$(oathtool --version)"
+echo "======================================================================="
+
+# Choose account
+echo "Please select an account:"`;
+
+      // Add the first section of formatted output (tech | account)
+      formattedData.forEach((item, index) => {
+        output += `
+printf "%-4s%-8s| %s\\n" "${index + 1}." "${item.tech}" "${item.account}"`;
+      });
+
+      // Add the second section of the bash script (account | key)
+      output += `
+
+printf "%-4s%-8s| %s\\n" "99." "Custom" "(provide secret key)"
+echo "-----------------------------------------------------------------------"
+echo "*Update: ..."
+echo "-----------------------------------------------------------------------"
+
+read -p "Enter the option number: " option
+
+case $option in`;
+
+      // Output the account/key section
+      formattedData.forEach((item, index) => {
+        output += `
+${index + 1}) key="${item.key}"; echo "${item.account}";;`;
+      });
+
+      // Add the final part of the bash script
+      output += `
+
+# For custom secret key
+99) read -p "Enter custom secret key: " key;;
+*) echo "Invalid option selected. Select a valid number."; exit 1;;
+esac
+
+# Display the value of the key variable
+#echo "Key is set to: $key"
+
+# Run the oathtool command
+oathtool --base32 --totp $key`;
+
+      // Display the formatted output in the output area
+      outputArea.textContent = output;  // Using textContent to preserve formatting
+    }
+	</script>      
+  </body>
+</html>
